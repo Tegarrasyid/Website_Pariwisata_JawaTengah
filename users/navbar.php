@@ -1,0 +1,277 @@
+<?php
+  if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+  }
+
+  require "koneksi.php";
+  if (isset($_SESSION['id_users'])) {
+    $id_users = $_SESSION['id_users'];
+    $queryUser = mysqli_query($koneksi, "SELECT * FROM users WHERE id_users='$id_users'");
+    $userData = mysqli_fetch_assoc($queryUser);
+  }
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Navbar Login</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <style>
+    /* Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Verdana, Geneva, Tahoma, sans-serif;
+      background-color: #f7f6f6ff; /* Putih abu-abu terang untuk body */
+    }
+
+    /* Navbar */
+    .navbar {
+      width: 100%;
+      background-color: rgba(255, 255, 255, 1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .navbar .brand img {
+      width: 70px;
+    }
+
+    .navbar ul {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .navbar ul li a {
+      color: #000000;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+
+    .navbar ul li a:hover {
+      color: #f39c12;
+    }
+
+    /* Search form */
+    .search-box {
+      display: flex;
+      align-items: center;
+      background: #3498db;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .search-box input {
+      padding: 6px 10px;
+      outline: none;
+    }
+
+    .search-box button {
+      border: none;
+      background: #3498db;
+      color: #fff;
+      padding: 6px 10px;
+      cursor: pointer;
+    }
+    
+    /* Login Button */
+    .btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .btn-primary {
+      background: #3498db;
+      color: #fff;
+    }
+
+    /* Profil dropdown */
+    .profil {
+      position: relative;
+      display: inline-block;
+    }
+
+    .profil-img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 45px;
+      background: #fff;
+      min-width: 150px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .dropdown-menu a {
+      display: block;
+      padding: 8px 12px;
+      text-decoration: none;
+      color: #333;
+    }
+
+    .dropdown-menu a:hover {
+      background: #f2f2f2;
+    }
+
+    .profil:hover .dropdown-menu {
+      display: block;
+    }
+
+    /* Menu toggle (hamburger) */
+    .menu-toggle {
+      display: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #333;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .navbar ul {
+        display: none;
+        flex-direction: column;
+        gap: 10px;
+        background: #fff;
+        position: absolute;
+        top: 60px;
+        right: 20px;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      }
+
+      .navbar ul.show {
+        display: flex;
+      }
+
+      .menu-toggle {
+        display: block;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <!-- Brand -->
+    <div class="brand">
+      <a href="index.php">
+        <img src="../aset/coba5.png" alt="Logo">
+      </a>
+    </div>
+
+    <!-- Hamburger Menu -->
+    <div class="menu-toggle"><i class="fa-solid fa-bars"></i></div>
+
+    <!-- Menu -->
+    <ul>
+      <li><a href="index.php">Home</a></li>
+      <li><a href="tentang.php">About</a></li>
+      <li><a href="wisata.php">Tempat Wisata</a></li>
+
+      <!-- Search -->
+      <li>
+        <form action="wisata.php" method="get" class="search-box">
+          <input type="text"  aria-label="Cari Products" aria-describedby="basic-addon2" name="keyword" placeholder="Cari Wisata...">
+          <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+        </form>
+      </li>
+
+      <!-- Login / Profil -->
+      <li>
+        <div id="login-register">
+          <a href="login.php"><button id="login-btn" class="btn btn-primary">Login</button></a>
+        </div>
+
+        <div id="profil" style="display:none;">
+          <div class="profil">
+            <?php if (!empty($userData['foto'])): ?>
+              <img src="uploads/<?php echo $userData['foto']; ?>" alt="User" class="profil-img">
+            <?php else: ?>
+              <img src="../aset/profil1.png" alt="User" class="profil-img">
+            <?php endif; ?>
+            <div class="dropdown-menu">
+              <a href="profil.php"><i class="fa-solid fa-user"></i> Edit Profil</a>
+              <a href="logout.php" id="logout-btn"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
+            </div>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </nav>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const loginBtn = document.getElementById("login-btn");
+      const logoutBtn = document.getElementById("logout-btn");
+      const loginRegister = document.getElementById("login-register");
+      const profil = document.getElementById("profil");
+      const currentPage = window.location.pathname.split("/").pop();
+
+      const menuToggle = document.querySelector(".menu-toggle");
+      const navMenu = document.querySelector(".navbar ul");
+
+      // Toggle menu saat klik hamburger
+      menuToggle.addEventListener("click", function() {
+        navMenu.classList.toggle("show");
+      });
+
+      // Cek apakah pengguna sudah login (disimpan di localStorage)
+      function updateNavbar() {
+        const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+
+        if (isLoggedIn) {
+          loginRegister.style.display = "none";
+          profil.style.display = "block";
+        } else {
+          loginRegister.style.display = "block";
+          profil.style.display = "none";
+        }
+
+        // Jika berada di halaman login atau register, pastikan tombol login/register tetap ada
+        if (currentPage === "login.php" || currentPage === "register.php") {
+          loginRegister.style.display = "block";
+          profil.style.display = "none";
+        }
+      }
+
+      // Panggil updateNavbar() saat halaman pertama kali dimuat
+      updateNavbar();
+
+      // Simulasi Login
+      loginBtn.addEventListener("click", function() {
+        localStorage.setItem("isLoggedIn", "true");
+        updateNavbar();
+      });
+
+      // Logout
+      logoutBtn.addEventListener("click", function() {
+        localStorage.removeItem("isLoggedIn");
+        updateNavbar();
+        location.reload(); // Refresh halaman setelah logout agar tampilan kembali ke semula
+      });
+    });
+  </script>
+</body>
+</html>
